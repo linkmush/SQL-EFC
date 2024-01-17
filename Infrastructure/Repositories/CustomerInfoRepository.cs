@@ -3,7 +3,7 @@ using Infrastructure.Entities;
 
 namespace Infrastructure.Repositories;
 
-public class OrderRepository(LocalDatabaseContext context) : BaseRepository<OrderEntity>(context)
+public class CustomerInfoRepository(LocalDatabaseContext context) : BaseRepository<CustomerInfoEntity>(context)
 {
     private readonly LocalDatabaseContext _context = context;
 }
