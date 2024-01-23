@@ -26,10 +26,6 @@ public class LocalDatabaseContext : DbContext
             .HasIndex(x => x.Email)
             .IsUnique();
 
-        modelBuilder.Entity<AddressEntity>()
-            .HasIndex(x => x.Id)
-            .IsUnique();
-
         modelBuilder.Entity<CustomerAddressEntity>()
             .HasKey(x => new { x.CustomerId, x.AddressId });
     }

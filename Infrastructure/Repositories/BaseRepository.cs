@@ -29,7 +29,11 @@ public abstract class BaseRepository<TEntity> where TEntity : class
     {
         try
         {
-            return _context.Set<TEntity>().ToList();
+            var result = _context.Set<TEntity>().ToList();
+            if (result != null)
+            {
+                return result;
+            }
         }
         catch (Exception ex) { Debug.WriteLine("ERROR :: " + ex.Message); }
         return null!;
@@ -39,7 +43,11 @@ public abstract class BaseRepository<TEntity> where TEntity : class
     {
         try
         {
-            return _context.Set<TEntity>().FirstOrDefault(predicate, null!);
+            var result = _context.Set<TEntity>().FirstOrDefault(predicate);
+            if (result != null)
+            {
+                return result;
+            }
         }
         catch (Exception ex) { Debug.WriteLine("ERROR :: " + ex.Message); }
         return null!;
@@ -82,7 +90,8 @@ public abstract class BaseRepository<TEntity> where TEntity : class
     {
         try
         {
-            return _context.Set<TEntity>().Any(predicate);
+            var result = _context.Set<TEntity>().Any(predicate);
+            return result;
         }
         catch (Exception ex) { Debug.WriteLine("ERROR :: " + ex.Message); }
         return false!;

@@ -19,25 +19,67 @@ public class OrderService(OrderRepository orderRepository, CustomerRepository cu
         {
             if (!_customerRepository.Exists(x => x.Email == customer.Email))
             {
-                var customerinfoEntity = _customerInfoRepository.GetOne(x => x.FirstName == customer.FirstName);
-                customerinfoEntity ??= _customerInfoRepository.Create(new CustomerInfoEntity { FirstName = customer.FirstName });
+                var customerEntity = _customerRepository.GetOne(x => x.Email == customer.Email);
+                customerEntity ??= _customerRepository.Create(new CustomerEntity { Email = customer.Email });
 
-                var customerEntity = new CustomerEntity
+                var addressEntity = new AddressEntity
                 {
-                    FirstName = customer.FirstName,
-                    LastName = customer.LastName,
-                    Email = customer.Email,
                     StreetName = customer.StreetName,
                     PostalCode = customer.PostalCode,
-                    City = customer.City
+                    City = customer.City,
                 };
+                var addressResult = _addressRepository.Create(addressEntity);
 
-                var result = _customerRepository.Create(customerEntity);
-                if (result == null)
+                var customerAddressEntity = new CustomerAddressEntity
+                {
+                    CustomerId = customer.CustomerId,
+                    AddressId = customer.AddressId
+                };
+                var customerAddressResult = _customerAddressRepository.Create(customerAddressEntity);
+
+                var customerInfoEntity = new CustomerInfoEntity
+                {
+                    CustomerId = customer.CustomerId,
+                    FirstName = customer.FirstName,
+                    LastName = customer.LastName,
+                };
+                var customerInfoResult = _customerInfoRepository.Create(customerInfoEntity);
+
+                var orderEntity = new OrderEntity
+                {
+                    CustomerId= customer.CustomerId,
+                };
+                var orderResult = _orderRepository.Create(orderEntity);
+
+
+
+                if (customerInfoResult != null && addressResult != null && customerAddressResult != null && orderResult != null)
                     return true;
             }
         }
         catch (Exception ex) { Debug.WriteLine("ERROR :: " + ex.Message); }
         return false;
+    }
+
+    public IEnumerable<CreateCustomerDto> GetAllCustomers()
+    {
+        var customers = new List<CreateCustomerDto>();
+
+        try
+        {
+            var result = _customerRepository.GetAll();
+
+            foreach (var item in result)
+            {
+                customers.Add(new CreateCustomerDto
+                {
+                    Email = item.Email,
+                });
+            }
+
+            return customers;
+        }
+        catch (Exception ex) { Debug.WriteLine("ERROR :: " + ex.Message); }
+        return null!;
     }
 }

@@ -1,5 +1,6 @@
 ﻿using System.ComponentModel.DataAnnotations.Schema;
 using System.ComponentModel.DataAnnotations;
+using Infrastructure.Dtos;
 
 namespace Infrastructure.Entities;
 
@@ -21,4 +22,16 @@ public class AddressEntity
     public string City { get; set; } = null!;
 
     public virtual ICollection<CustomerAddressEntity> CustomerAdress { get; set; } = new HashSet<CustomerAddressEntity>();
+
+    public static implicit operator AddressEntity(CreateCustomerDto customer)
+    {
+        var addressEntity = new AddressEntity
+        {
+            StreetName = customer.StreetName,
+            PostalCode  = customer.PostalCode,
+            City = customer.City
+        };
+
+        return addressEntity;
+    }
 }
