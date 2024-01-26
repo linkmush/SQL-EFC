@@ -5,6 +5,7 @@ using Infrastructure.Services;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
+using Presentation.ConsoleApp.MenuService;
 
 var builder = Host.CreateDefaultBuilder().ConfigureServices(services =>
 {
@@ -17,27 +18,9 @@ var builder = Host.CreateDefaultBuilder().ConfigureServices(services =>
     services.AddScoped<AddressRepository>();
     services.AddScoped<OrderService>();
 
+    services.AddSingleton<MenuService>();
+
 }).Build();
 
-builder.Start();
-
-Console.Clear();
-var orderService = builder.Services.GetRequiredService<OrderService>();
-var result = orderService.CreateCustomerAsync(new CreateCustomerDto
-{
-    FirstName = "Hans",
-    LastName = "hansson",
-    Email = "hans@domain.com",
-    StreetName = "hejhejgatan 12",
-    PostalCode = "12345",
-    City = "stockholm"
-});
-
-Console.Clear();
-
-if (result)
-    Console.WriteLine("Lyckades");
-else
-    Console.WriteLine("något gick fel");
-
-Console.ReadKey();
+var menuService = builder.Services.GetRequiredService<MenuService>();
+await menuService.ShowMainMenu();
