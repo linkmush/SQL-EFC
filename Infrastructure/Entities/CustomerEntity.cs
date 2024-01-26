@@ -13,8 +13,9 @@ public class CustomerEntity
     [Column(TypeName = "nvarchar(100)")] // talar om vilken datatyp och längd
     public string Email { get; set; } = null!;
 
+    public virtual CustomerInfoEntity CustomerInfo { get; set; } = null!;
     public virtual ICollection<OrderEntity> Orders { get; set; } = new HashSet<OrderEntity>(); // en till många relation
-    public virtual ICollection<CustomerAddressEntity> CustomerAdress { get; set; } = new HashSet<CustomerAddressEntity>();
+    public virtual ICollection<CustomerAddressEntity> CustomerAddress { get; set; } = new HashSet<CustomerAddressEntity>();
 
     public static implicit operator CustomerEntity(CreateCustomerDto customer)
     {

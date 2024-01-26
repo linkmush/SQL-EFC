@@ -2,6 +2,7 @@
 using Infrastructure.Entities;
 using Infrastructure.Repositories;
 using System.Diagnostics;
+using System.Linq.Expressions;
 
 namespace Infrastructure.Services;
 
@@ -13,71 +14,137 @@ public class OrderService(OrderRepository orderRepository, CustomerRepository cu
     private readonly CustomerAddressRepository _customerAddressRepository = customerAddressRepository;
     private readonly AddressRepository _addressRepository = addressRepository;
 
-    public bool CreateCustomer(CreateCustomerDto customer)
+    public async Task<bool> CreateCustomerAsync(CreateCustomerDto customer)
     {
         try
         {
-            if (!_customerRepository.Exists(x => x.Email == customer.Email))
+            if (!await _customerRepository.ExistsAsync(x => x.Email == customer.Email))
             {
-                var customerEntity = _customerRepository.GetOne(x => x.Email == customer.Email);
-                customerEntity ??= _customerRepository.Create(new CustomerEntity { Email = customer.Email });
-
-                var addressEntity = new AddressEntity
+                var customerEntity = await _customerRepository.GetOneAsync(x => x.Email == customer.Email);
+                if (customerEntity == null)
                 {
-                    StreetName = customer.StreetName,
-                    PostalCode = customer.PostalCode,
-                    City = customer.City,
-                };
-                var addressResult = _addressRepository.Create(addressEntity);
+                    customerEntity = await _customerRepository.CreateAsync(new CustomerEntity { Email = customer.Email });
 
-                var customerAddressEntity = new CustomerAddressEntity
-                {
-                    CustomerId = customer.CustomerId,
-                    AddressId = customer.AddressId
-                };
-                var customerAddressResult = _customerAddressRepository.Create(customerAddressEntity);
+                    var addressEntity = await _addressRepository.CreateAsync(new AddressEntity
+                    {
+                        StreetName = customer.StreetName,
+                        PostalCode = customer.PostalCode,
+                        City = customer.City,
+                    });
 
-                var customerInfoEntity = new CustomerInfoEntity
-                {
-                    CustomerId = customer.CustomerId,
-                    FirstName = customer.FirstName,
-                    LastName = customer.LastName,
-                };
-                var customerInfoResult = _customerInfoRepository.Create(customerInfoEntity);
+                    var customerAddressEntity = await _customerAddressRepository.CreateAsync(new CustomerAddressEntity
+                    {
+                        CustomerId = customerEntity.Id,
+                        AddressId = addressEntity.Id
+                    });
 
-                var orderEntity = new OrderEntity
-                {
-                    CustomerId= customer.CustomerId,
-                };
-                var orderResult = _orderRepository.Create(orderEntity);
+                    var customerInfoEntity = await _customerInfoRepository.CreateAsync(new CustomerInfoEntity
+                    {
+                        CustomerId = customerEntity.Id,
+                        FirstName = customer.FirstName,
+                        LastName = customer.LastName,
+                    });
 
+                    var orderEntity = await _orderRepository.CreateAsync(new OrderEntity
+                    {
+                        CustomerId = customerEntity.Id,
+                    });
 
-
-                if (customerInfoResult != null && addressResult != null && customerAddressResult != null && orderResult != null)
-                    return true;
+                    if (addressEntity != null && customerAddressEntity != null && customerInfoEntity != null && orderEntity != null)
+                        return true;
+                }
             }
         }
         catch (Exception ex) { Debug.WriteLine("ERROR :: " + ex.Message); }
         return false;
     }
+    public async Task<CreateCustomerDto> GetOneAsync(Expression<Func<CustomerEntity, bool>> predicate)
+    {
+        try
+        {
+            var customerEntity = await _customerRepository.GetOneAsync(predicate);
+            if (customerEntity != null)
+            {
+                var createCustomerDto = new CreateCustomerDto
+                {
+                    Email = customerEntity.Email,
+                    FirstName = customerEntity.CustomerInfo.FirstName,
+                    LastName = customerEntity.CustomerInfo.LastName,
+                    CustomerId = customerEntity.Id,
+                    AddressId = customerEntity.Id,
+                };
 
-    public IEnumerable<CreateCustomerDto> GetAllCustomers()
+                var customerAddress = await _customerAddressRepository.GetOneAsync(x => x.CustomerId == customerEntity.Id);
+                if (customerAddress != null)
+                {
+                    createCustomerDto.StreetName = customerAddress.Address.StreetName;
+                    createCustomerDto.PostalCode = customerAddress.Address.PostalCode;
+                    createCustomerDto.City = customerAddress.Address.City;
+                };
+
+                return createCustomerDto;
+            }
+        }
+        catch (Exception ex) { Debug.WriteLine("ERROR :: " + ex.Message); }
+        return null!;
+    }
+
+    public async Task<IEnumerable<CreateCustomerDto>> GetAllAsync()
     {
         var customers = new List<CreateCustomerDto>();
 
         try
         {
-            var result = _customerRepository.GetAll();
+            var result = await _customerRepository.GetAllAsync();
 
             foreach (var item in result)
             {
                 customers.Add(new CreateCustomerDto
                 {
                     Email = item.Email,
+                    FirstName = item.CustomerInfo.FirstName,
+                    LastName = item.CustomerInfo.LastName,
+                    CustomerId = item.CustomerInfo.CustomerId,
+                    AddressId = item.CustomerAddress.AddressId,
+                    StreetName = item.StreetName,
+                    PostalCode = item.PostalCode,
+                    City = item.City,
                 });
+
             }
 
             return customers;
+        }
+        catch (Exception ex) { Debug.WriteLine("ERROR :: " + ex.Message); }
+        return null!;
+    }
+
+    public async Task<CreateCustomerDto> UpdateAsync(CreateCustomerDto customer)
+    {
+        try
+        {
+            if (!await _customerRepository.ExistsAsync(x => x.Email == customer.Email))
+            {
+                var updateCustomer = await _customerRepository.GetOneAsync(x => x.Email == customer.Email);
+
+                if (updateCustomer != null)
+                {
+                    updateCustomer.Email = customer.Email;
+                    updateCustomer.CustomerInfo.FirstName = customer.FirstName;
+                    updateCustomer.CustomerInfo.LastName = customer.LastName;
+
+                    await _customerRepository.UpdateAsync(x => x.Email == customer.Email, updateCustomer);
+
+                    var updatedcustomerDto = new CreateCustomerDto
+                    {
+                        Email = updateCustomer.Email,
+                        FirstName = updateCustomer.CustomerInfo.FirstName,
+                        LastName = updateCustomer.CustomerInfo.LastName,
+                    };
+
+                    return updatedcustomerDto;
+                }
+            }
         }
         catch (Exception ex) { Debug.WriteLine("ERROR :: " + ex.Message); }
         return null!;

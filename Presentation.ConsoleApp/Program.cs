@@ -23,15 +23,16 @@ builder.Start();
 
 Console.Clear();
 var orderService = builder.Services.GetRequiredService<OrderService>();
-var result = orderService.CreateCustomer(new CreateCustomerDto
+var result = orderService.CreateCustomerAsync(new CreateCustomerDto
 {
-    FirstName = "Oskar",
-    LastName = "Lindqvist",
-    Email = "oskar@domain.com",
+    FirstName = "Hans",
+    LastName = "hansson",
+    Email = "hans@domain.com",
     StreetName = "hejhejgatan 12",
     PostalCode = "12345",
-    City = "Bangkok"
+    City = "stockholm"
 });
+
 Console.Clear();
 
 if (result)
