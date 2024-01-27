@@ -14,7 +14,7 @@ public class OrderEntity
     public int? CustomerId { get; set; }
     public virtual CustomerEntity Customer { get; set; } = null!;
 
-    public static implicit operator OrderEntity(CreateCustomerDto customer)
+    public static implicit operator OrderEntity(CustomerDto customer)
     {
         var orderEntity = new OrderEntity
         {

@@ -14,7 +14,7 @@ public class OrderService(OrderRepository orderRepository, CustomerRepository cu
     private readonly CustomerAddressRepository _customerAddressRepository = customerAddressRepository;
     private readonly AddressRepository _addressRepository = addressRepository;
 
-    public async Task<bool> CreateCustomerAsync(CreateCustomerDto customer)
+    public async Task<bool> CreateCustomerAsync(CustomerDto customer)
     {
         try
         {
@@ -58,14 +58,16 @@ public class OrderService(OrderRepository orderRepository, CustomerRepository cu
         catch (Exception ex) { Debug.WriteLine("ERROR :: " + ex.Message); }
         return false;
     }
-    public async Task<CreateCustomerDto> GetOneAsync(Expression<Func<CustomerEntity, bool>> predicate)
+    public async Task<CustomerDto> GetOneAsync(Expression<Func<CustomerEntity, bool>> predicate)
     {
         try
         {
             var customerEntity = await _customerRepository.GetOneAsync(predicate);
+
             if (customerEntity != null)
             {
-                var createCustomerDto = new CreateCustomerDto
+
+                var CustomerDto = new CustomerDto
                 {
                     Email = customerEntity.Email,
                     FirstName = customerEntity.CustomerInfo.FirstName,
@@ -77,40 +79,53 @@ public class OrderService(OrderRepository orderRepository, CustomerRepository cu
                 var customerAddress = await _customerAddressRepository.GetOneAsync(x => x.CustomerId == customerEntity.Id);
                 if (customerAddress != null)
                 {
-                    createCustomerDto.StreetName = customerAddress.Address.StreetName;
-                    createCustomerDto.PostalCode = customerAddress.Address.PostalCode;
-                    createCustomerDto.City = customerAddress.Address.City;
+                    var addressEntity = await _addressRepository.GetOneAsync(x => x.Id == customerAddress.AddressId);
+                    if (addressEntity != null)
+                    {
+                        CustomerDto.StreetName = customerAddress.Address.StreetName;
+                        CustomerDto.PostalCode = customerAddress.Address.PostalCode;
+                        CustomerDto.City = customerAddress.Address.City;
+                    }
                 };
 
-                return createCustomerDto;
+                return CustomerDto;
             }
         }
         catch (Exception ex) { Debug.WriteLine("ERROR :: " + ex.Message); }
         return null!;
     }
 
-    public async Task<IEnumerable<CreateCustomerDto>> GetAllAsync()
+    public async Task<IEnumerable<CustomerDto>> GetAllAsync()
     {
-        var customers = new List<CreateCustomerDto>();
+        var customers = new List<CustomerDto>();
 
         try
         {
-            var result = await _customerRepository.GetAllAsync();
+            var customerEntities = await _customerRepository.GetAllAsync();
 
-            foreach (var item in result)
+            foreach (var item in customerEntities)
             {
-                customers.Add(new CreateCustomerDto
+                var customerAddressEntity = await _customerAddressRepository.GetOneAsync(x => x.CustomerId == item.Id);
+                
+                if (customerAddressEntity != null)
                 {
-                    Email = item.Email,
-                    FirstName = item.CustomerInfo.FirstName,
-                    LastName = item.CustomerInfo.LastName,
-                    CustomerId = item.CustomerInfo.CustomerId,
-                   // AddressId = item.CustomerAddress.AddressId,
-                   // StreetName = item.StreetName,
-                   // PostalCode = item.customerAddress.Address.PostalCode,
-                   // City = item.City,
-                });
+                    var addressEntity = await _addressRepository.GetOneAsync(x => x.Id == customerAddressEntity.AddressId);
 
+                    if (addressEntity != null)
+                    {
+                        customers.Add(new CustomerDto
+                        {
+                            Email = item.Email,
+                            FirstName = item.CustomerInfo.FirstName,
+                            LastName = item.CustomerInfo.LastName,
+                            CustomerId = item.CustomerInfo.CustomerId,
+                            AddressId = customerAddressEntity.AddressId,
+                            StreetName = addressEntity.StreetName,
+                            PostalCode = addressEntity.PostalCode,
+                            City = addressEntity.City,
+                        });
+                    }
+                }
             }
 
             return customers;
@@ -119,7 +134,7 @@ public class OrderService(OrderRepository orderRepository, CustomerRepository cu
         return null!;
     }
 
-    public async Task<CreateCustomerDto> UpdateAsync(CreateCustomerDto customer)
+    public async Task<CustomerDto> UpdateAsync(CustomerDto customer)
     {
         try
         {
@@ -145,7 +160,7 @@ public class OrderService(OrderRepository orderRepository, CustomerRepository cu
 
                     if (updatedAddress != null)
                     {
-                        var updatedcustomerDto = new CreateCustomerDto
+                        var updatedcustomerDto = new CustomerDto
                         {
                             Email = updateCustomer.Email,
                             FirstName = updateCustomer.CustomerInfo.FirstName,
@@ -164,7 +179,7 @@ public class OrderService(OrderRepository orderRepository, CustomerRepository cu
         return null!;
     }
 
-    public async Task<bool> DeleteAsync(CreateCustomerDto customer)
+    public async Task<bool> DeleteAsync(CustomerDto customer)
     {
         try
         {

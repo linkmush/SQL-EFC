@@ -56,8 +56,9 @@ public class MenuService(OrderService orderService)
             Console.WriteLine("1. Add new customer");
             Console.WriteLine("2. Show all customers");
             Console.WriteLine("3. Show specific customer");
-            Console.WriteLine("4. Delete customer");
-            Console.WriteLine("5. Exit");
+            Console.WriteLine("4. Update customer");
+            Console.WriteLine("5. Delete customer");
+            Console.WriteLine("6. Exit");
 
             var choice = Console.ReadLine();
 
@@ -73,9 +74,12 @@ public class MenuService(OrderService orderService)
                     await ShowObjectMenuAsync();
                     break;
                 case "4":
-                    await ShowDeletedMenuAsync();
+                    await ShowUpdateMenuAsync();
                     break;
                 case "5":
+                    await ShowDeletedMenuAsync();
+                    break;
+                case "6":
                     Environment.Exit(0);
                     break;
                 default:
@@ -89,7 +93,7 @@ public class MenuService(OrderService orderService)
 
     public async Task ShowAddMenuAsync()
     {
-        CreateCustomerDto customer = new();
+        CustomerDto customer = new();
 
         Console.Clear();
         Console.WriteLine("Enter First Name:  ");
@@ -127,7 +131,7 @@ public class MenuService(OrderService orderService)
 
         if (result !=null)
         {
-            var users = result as List<CreateCustomerDto>;
+            var users = result as List<CustomerDto>;
 
             if (users != null && users.Any())
             {
@@ -188,6 +192,50 @@ public class MenuService(OrderService orderService)
         }
     }
 
+    public async Task ShowUpdateMenuAsync()
+    {
+        Console.WriteLine("Type the email address of the contact you want to update: ");
+
+        var email = Console.ReadLine();
+
+        if (!string.IsNullOrEmpty(email))
+        {
+            var customertoUpdate = await _orderService.GetOneAsync(x => x.Email == email);
+
+            if (customertoUpdate != null)
+            {
+                Console.Clear();
+                Console.WriteLine("Enter new customer details:");
+                Console.WriteLine("Enter First Name:  ");
+                customertoUpdate.FirstName = Console.ReadLine()!;
+
+                Console.WriteLine("Enter Last Name:  ");
+                customertoUpdate.LastName = Console.ReadLine()!;
+
+                Console.WriteLine("Enter Email:  ");
+                customertoUpdate.Email = Console.ReadLine()!;
+
+                Console.WriteLine("Enter street name:  ");
+                customertoUpdate.StreetName = Console.ReadLine()!;
+
+                Console.WriteLine("Enter postal code:  ");
+                customertoUpdate.PostalCode = Console.ReadLine()!;
+
+                Console.WriteLine("Enter city:  ");
+                customertoUpdate.City = Console.ReadLine()!;
+
+                await _orderService.UpdateAsync(customertoUpdate);
+
+                Console.WriteLine();
+                Console.WriteLine("Customer successfully updated!");
+
+                Console.WriteLine();
+                Console.WriteLine("Press enter to continue...");
+                Console.ReadLine();
+            }
+        }
+    }
+
     public async Task ShowDeletedMenuAsync()
     {
         Console.WriteLine("Type the email address of the contact you want to delete: ");
@@ -196,7 +244,7 @@ public class MenuService(OrderService orderService)
 
         if (!string.IsNullOrEmpty(email))
         {
-            var customerToDelete = await _orderService.DeleteAsync(new CreateCustomerDto { Email = email });
+            var customerToDelete = await _orderService.DeleteAsync(new CustomerDto { Email = email });
 
             if (customerToDelete)
             {

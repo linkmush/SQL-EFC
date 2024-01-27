@@ -28,5 +28,17 @@ public class LocalDatabaseContext : DbContext
 
         modelBuilder.Entity<CustomerAddressEntity>()
             .HasKey(x => new { x.CustomerId, x.AddressId });
+
+        modelBuilder.Entity<AddressEntity>()
+            .HasMany(a => a.CustomerAdress)
+            .WithOne(ca => ca.Address)
+            .HasForeignKey(ca => ca.AddressId)
+            .OnDelete(DeleteBehavior.Cascade);
+
+        modelBuilder.Entity<CustomerEntity>()
+            .HasMany(c => c.CustomerAddress)
+            .WithOne(ca => ca.Customer)
+            .HasForeignKey(ca => ca.CustomerId)
+            .OnDelete(DeleteBehavior.Cascade);
     }
 }

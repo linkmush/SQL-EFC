@@ -17,7 +17,7 @@ public class CustomerEntity
     public virtual ICollection<OrderEntity> Orders { get; set; } = new HashSet<OrderEntity>(); // en till många relation
     public virtual ICollection<CustomerAddressEntity> CustomerAddress { get; set; } = new HashSet<CustomerAddressEntity>();
 
-    public static implicit operator CustomerEntity(CreateCustomerDto customer)
+    public static implicit operator CustomerEntity(CustomerDto customer)
     {
         var customerEntity = new CustomerEntity
         {

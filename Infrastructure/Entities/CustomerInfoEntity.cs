@@ -20,7 +20,7 @@ public class CustomerInfoEntity
 
     public virtual CustomerEntity Customer { get; set; } = null!;
 
-    public static implicit operator CustomerInfoEntity(CreateCustomerDto customer)
+    public static implicit operator CustomerInfoEntity(CustomerDto customer)
     {
         var customerInfoEntity = new CustomerInfoEntity
         {

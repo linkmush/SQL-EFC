@@ -23,7 +23,7 @@ public class AddressEntity
 
     public virtual ICollection<CustomerAddressEntity> CustomerAdress { get; set; } = new HashSet<CustomerAddressEntity>();
 
-    public static implicit operator AddressEntity(CreateCustomerDto customer)
+    public static implicit operator AddressEntity(CustomerDto customer)
     {
         var addressEntity = new AddressEntity
         {
