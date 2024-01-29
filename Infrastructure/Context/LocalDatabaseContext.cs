@@ -30,7 +30,7 @@ public class LocalDatabaseContext : DbContext
             .HasKey(x => new { x.CustomerId, x.AddressId });
 
         modelBuilder.Entity<AddressEntity>()
-            .HasMany(a => a.CustomerAdress)
+            .HasMany(a => a.CustomerAddress)
             .WithOne(ca => ca.Address)
             .HasForeignKey(ca => ca.AddressId)
             .OnDelete(DeleteBehavior.Cascade);

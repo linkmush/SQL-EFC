@@ -15,7 +15,7 @@ public class CustomerEntity
 
     public virtual CustomerInfoEntity CustomerInfo { get; set; } = null!;
     public virtual ICollection<OrderEntity> Orders { get; set; } = new HashSet<OrderEntity>(); // en till många relation
-    public virtual ICollection<CustomerAddressEntity> CustomerAddress { get; set; } = new HashSet<CustomerAddressEntity>();
+    public virtual ICollection<CustomerAddressEntity> CustomerAddress { get; set; } = new List<CustomerAddressEntity>();
 
     public static implicit operator CustomerEntity(CustomerDto customer)
     {

@@ -14,7 +14,7 @@ public class OrderService(OrderRepository orderRepository, CustomerRepository cu
     private readonly CustomerAddressRepository _customerAddressRepository = customerAddressRepository;
     private readonly AddressRepository _addressRepository = addressRepository;
 
-    public async Task<bool> CreateCustomerAsync(CustomerDto customer)
+    public async Task<bool> CreateCustomerAsync(CustomerDto customer, AddressDto address)
     {
         try
         {
@@ -27,9 +27,9 @@ public class OrderService(OrderRepository orderRepository, CustomerRepository cu
 
                     var addressEntity = await _addressRepository.CreateAsync(new AddressEntity
                     {
-                        StreetName = customer.StreetName,
-                        PostalCode = customer.PostalCode,
-                        City = customer.City,
+                        StreetName = address.StreetName,
+                        PostalCode = address.PostalCode,
+                        City = address.City,
                     });
 
                     var customerAddressEntity = await _customerAddressRepository.CreateAsync(new CustomerAddressEntity
@@ -67,7 +67,7 @@ public class OrderService(OrderRepository orderRepository, CustomerRepository cu
             if (customerEntity != null)
             {
 
-                var CustomerDto = new CustomerDto
+                var customerDto = new CustomerDto
                 {
                     Email = customerEntity.Email,
                     FirstName = customerEntity.CustomerInfo.FirstName,
@@ -76,19 +76,19 @@ public class OrderService(OrderRepository orderRepository, CustomerRepository cu
                     AddressId = customerEntity.Id,
                 };
 
-                var customerAddress = await _customerAddressRepository.GetOneAsync(x => x.CustomerId == customerEntity.Id);
-                if (customerAddress != null)
+                foreach (var customerRecord in customerEntity.CustomerAddress)
                 {
-                    var addressEntity = await _addressRepository.GetOneAsync(x => x.Id == customerAddress.AddressId);
-                    if (addressEntity != null)
+                    var addressDto = new AddressDto
                     {
-                        CustomerDto.StreetName = customerAddress.Address.StreetName;
-                        CustomerDto.PostalCode = customerAddress.Address.PostalCode;
-                        CustomerDto.City = customerAddress.Address.City;
-                    }
-                };
+                        StreetName = customerRecord.Address.StreetName,
+                        PostalCode = customerRecord.Address.PostalCode,
+                        City = customerRecord.Address.City,
+                    };
 
-                return CustomerDto;
+                    customerDto.Addresses.Add(addressDto);
+                }
+
+                return customerDto;
             }
         }
         catch (Exception ex) { Debug.WriteLine("ERROR :: " + ex.Message); }
@@ -105,25 +105,27 @@ public class OrderService(OrderRepository orderRepository, CustomerRepository cu
 
             foreach (var item in customerEntities)
             {
-                var customerAddressEntity = await _customerAddressRepository.GetOneAsync(x => x.CustomerId == item.Id);
-                
-                if (customerAddressEntity != null)
+                var customerDto = new CustomerDto
                 {
-                    var addressEntity = await _addressRepository.GetOneAsync(x => x.Id == customerAddressEntity.AddressId);
+                    Email = item.Email,
+                    FirstName = item.CustomerInfo.FirstName,
+                    LastName = item.CustomerInfo.LastName,
+                    CustomerId = item.CustomerInfo.CustomerId
+                };
 
-                    if (addressEntity != null)
+                if (customerDto !=null)
+                {
+                    foreach (var customerAddress in item.CustomerAddress)
                     {
-                        customers.Add(new CustomerDto
+                        var addressEntity = await _addressRepository.GetOneAsync(x => x.Id == customerAddress.AddressId);
+                        customerDto.Addresses.Add(new AddressDto
                         {
-                            Email = item.Email,
-                            FirstName = item.CustomerInfo.FirstName,
-                            LastName = item.CustomerInfo.LastName,
-                            CustomerId = item.CustomerInfo.CustomerId,
-                            AddressId = customerAddressEntity.AddressId,
                             StreetName = addressEntity.StreetName,
                             PostalCode = addressEntity.PostalCode,
-                            City = addressEntity.City,
+                            City = addressEntity.City
                         });
+
+                        customers.Add(customerDto);
                     }
                 }
             }
@@ -153,9 +155,9 @@ public class OrderService(OrderRepository orderRepository, CustomerRepository cu
 
                     var updatedAddress = await _addressRepository.UpdateAsync(x => x.Id == updateCustomer.Id, new AddressEntity
                     {
-                        StreetName = customer.StreetName,
-                        PostalCode = customer.PostalCode,
-                        City = customer.City,
+                        //StreetName = customer.StreetName,
+                        //PostalCode = customer.PostalCode,
+                        //City = customer.City,
                     });
 
                     if (updatedAddress != null)
@@ -165,9 +167,9 @@ public class OrderService(OrderRepository orderRepository, CustomerRepository cu
                             Email = updateCustomer.Email,
                             FirstName = updateCustomer.CustomerInfo.FirstName,
                             LastName = updateCustomer.CustomerInfo.LastName,
-                            StreetName = updatedAddress.StreetName,
-                            PostalCode = updatedAddress.PostalCode,
-                            City = updatedAddress.City,
+                           // StreetName = updatedAddress.StreetName,
+                           // PostalCode = updatedAddress.PostalCode,
+                           // City = updatedAddress.City,
                         };
 
                         return updatedcustomerDto;

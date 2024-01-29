@@ -2,6 +2,7 @@
 using Infrastructure.Entities;
 using Infrastructure.Services;
 using System.Net.NetworkInformation;
+using System.Net.WebSockets;
 
 namespace Presentation.ConsoleApp.MenuService;
 
@@ -94,6 +95,7 @@ public class MenuService(OrderService orderService)
     public async Task ShowAddMenuAsync()
     {
         CustomerDto customer = new();
+        AddressDto address = new();
 
         Console.Clear();
         Console.WriteLine("Enter First Name:  ");
@@ -106,15 +108,15 @@ public class MenuService(OrderService orderService)
         customer.Email = Console.ReadLine()!;
 
         Console.WriteLine("Enter street name:  ");
-        customer.StreetName = Console.ReadLine()!;
+        address.StreetName = Console.ReadLine()!;
 
         Console.WriteLine("Enter postal code:  ");
-        customer.PostalCode = Console.ReadLine()!;
+        address.PostalCode = Console.ReadLine()!;
 
         Console.WriteLine("Enter city:  ");
-        customer.City = Console.ReadLine()!;
+        address.City = Console.ReadLine()!;
 
-        await _orderService.CreateCustomerAsync(customer);
+        await _orderService.CreateCustomerAsync(customer, address);
 
         Console.WriteLine();
         Console.WriteLine("Customer successfully added!");
@@ -135,6 +137,7 @@ public class MenuService(OrderService orderService)
 
             if (users != null && users.Any())
             {
+                Console.Clear();
                 int count = 1;
                 foreach (var user in users)
                 {
@@ -142,13 +145,19 @@ public class MenuService(OrderService orderService)
                     Console.WriteLine($"{count}. ");
                     Console.WriteLine($"{user.FirstName} {user.LastName} ");
                     Console.WriteLine($"{user.Email} ");
-                    Console.WriteLine($"{user.StreetName} ");
-                    Console.WriteLine($"{user.PostalCode} ");
-                    Console.WriteLine($"{user.City} ");
+
+                    foreach (var address in user.Addresses)
+                    {
+                        Console.WriteLine($"{address.StreetName} ");
+                        Console.WriteLine($"{address.PostalCode} ");
+                        Console.WriteLine($"{address.City} ");
+                    }
+
                     Console.WriteLine();
 
                     count++;
                 }
+                Console.WriteLine("-----PRESS ANY KEY TO RETURN TO MENU-----");
             }
             else
             {
@@ -171,15 +180,22 @@ public class MenuService(OrderService orderService)
         {
             var result = await _orderService.GetOneAsync(x => x.Email == email);
 
+            Console.Clear();
+
             if (result != null)
             {
                 Console.WriteLine();
                 Console.WriteLine($"{result.FirstName} {result.LastName} ");
                 Console.WriteLine($"{result.Email} ");
-                Console.WriteLine($"{result.StreetName} ");
-                Console.WriteLine($"{result.PostalCode} ");
-                Console.WriteLine($"{result.City} ");
+
+                foreach (var address in result.Addresses)
+                {
+                    Console.WriteLine($"{address.StreetName} ");
+                    Console.WriteLine($"{address.PostalCode} ");
+                    Console.WriteLine($"{address.City} ");
+                }
                 Console.WriteLine();
+                Console.WriteLine("-----PRESS ANY KEY TO RETURN TO MENU-----");
             }
             else
             {
@@ -215,14 +231,17 @@ public class MenuService(OrderService orderService)
                 Console.WriteLine("Enter Email:  ");
                 customertoUpdate.Email = Console.ReadLine()!;
 
-                Console.WriteLine("Enter street name:  ");
-                customertoUpdate.StreetName = Console.ReadLine()!;
+                foreach (var address in customertoUpdate.Addresses)
+                {
+                    Console.WriteLine("Enter street name:  ");
+                    address.StreetName = Console.ReadLine()!;
 
-                Console.WriteLine("Enter postal code:  ");
-                customertoUpdate.PostalCode = Console.ReadLine()!;
+                    Console.WriteLine("Enter postal code:  ");
+                    address.PostalCode = Console.ReadLine()!;
 
-                Console.WriteLine("Enter city:  ");
-                customertoUpdate.City = Console.ReadLine()!;
+                    Console.WriteLine("Enter city:  ");
+                    address.City = Console.ReadLine()!;
+                }
 
                 await _orderService.UpdateAsync(customertoUpdate);
 

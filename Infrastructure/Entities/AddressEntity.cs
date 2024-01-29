@@ -21,15 +21,15 @@ public class AddressEntity
     [Column(TypeName = "nvarchar(50)")]
     public string City { get; set; } = null!;
 
-    public virtual ICollection<CustomerAddressEntity> CustomerAdress { get; set; } = new HashSet<CustomerAddressEntity>();
+    public virtual ICollection<CustomerAddressEntity> CustomerAddress { get; set; } = new List<CustomerAddressEntity>();
 
-    public static implicit operator AddressEntity(CustomerDto customer)
+    public static implicit operator AddressEntity(AddressDto address)
     {
         var addressEntity = new AddressEntity
         {
-            StreetName = customer.StreetName,
-            PostalCode  = customer.PostalCode,
-            City = customer.City
+            StreetName = address.StreetName,
+            PostalCode  = address.PostalCode,
+            City = address.City
         };
 
         return addressEntity;
