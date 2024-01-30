@@ -1,12 +1,13 @@
 ﻿using Infrastructure.Context;
 using Infrastructure.Entities;
+using Infrastructure.Interfaces;
 using Microsoft.EntityFrameworkCore;
 using System.Diagnostics;
 using System.Linq.Expressions;
 
 namespace Infrastructure.Repositories;
 
-public class CustomerAddressRepository(LocalDatabaseContext context) : BaseRepository<CustomerAddressEntity>(context)
+public class CustomerAddressRepository(LocalDatabaseContext context) : BaseRepository<CustomerAddressEntity>(context), ICustomerAddressRepository
 {
     private readonly LocalDatabaseContext _context = context;
 

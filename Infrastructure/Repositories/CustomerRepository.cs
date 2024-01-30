@@ -1,16 +1,17 @@
 ﻿using Infrastructure.Context;
 using Infrastructure.Entities;
+using Infrastructure.Interfaces;
 using Microsoft.EntityFrameworkCore;
 using System.Diagnostics;
 using System.Linq.Expressions;
 
 namespace Infrastructure.Repositories;
 
-public class CustomerRepository(LocalDatabaseContext context) : BaseRepository<CustomerEntity>(context)
+public class CustomerRepository(LocalDatabaseContext context) : BaseRepository<CustomerEntity>(context), ICustomerRepository
 {
     private readonly LocalDatabaseContext _context = context;
 
-    
+
 
     public override async Task<IEnumerable<CustomerEntity>> GetAllAsync()
     {

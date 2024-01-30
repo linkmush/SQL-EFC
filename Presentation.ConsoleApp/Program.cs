@@ -1,5 +1,5 @@
 ﻿using Infrastructure.Context;
-using Infrastructure.Dtos;
+using Infrastructure.Interfaces;
 using Infrastructure.Repositories;
 using Infrastructure.Services;
 using Microsoft.EntityFrameworkCore;

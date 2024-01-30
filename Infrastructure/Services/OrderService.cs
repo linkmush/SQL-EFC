@@ -113,7 +113,7 @@ public class OrderService(OrderRepository orderRepository, CustomerRepository cu
                     CustomerId = item.CustomerInfo.CustomerId
                 };
 
-                if (customerDto !=null)
+                if (customerDto != null)
                 {
                     foreach (var customerAddress in item.CustomerAddress)
                     {
@@ -153,27 +153,15 @@ public class OrderService(OrderRepository orderRepository, CustomerRepository cu
 
                     await _customerRepository.UpdateAsync(x => x.Email == customer.Email, updateCustomer);
 
-                    var updatedAddress = await _addressRepository.UpdateAsync(x => x.Id == updateCustomer.Id, new AddressEntity
+                    var updatedCustomerDto = new CustomerDto
                     {
-                        //StreetName = customer.StreetName,
-                        //PostalCode = customer.PostalCode,
-                        //City = customer.City,
-                    });
+                        Email = updateCustomer.Email,
+                        FirstName = updateCustomer.CustomerInfo.FirstName,
+                        LastName = updateCustomer.CustomerInfo.LastName,
+                        CustomerId = updateCustomer.Id,
+                    };
 
-                    if (updatedAddress != null)
-                    {
-                        var updatedcustomerDto = new CustomerDto
-                        {
-                            Email = updateCustomer.Email,
-                            FirstName = updateCustomer.CustomerInfo.FirstName,
-                            LastName = updateCustomer.CustomerInfo.LastName,
-                           // StreetName = updatedAddress.StreetName,
-                           // PostalCode = updatedAddress.PostalCode,
-                           // City = updatedAddress.City,
-                        };
-
-                        return updatedcustomerDto;
-                    }
+                    return updatedCustomerDto;
                 }
             }
         }
@@ -189,7 +177,6 @@ public class OrderService(OrderRepository orderRepository, CustomerRepository cu
 
             if (customerEntity != null)
             {
-                await _addressRepository.DeleteAsync(x => x.Id == customer.AddressId);
                 await _customerAddressRepository.DeleteAsync(x => x.CustomerId == customerEntity.Id);
                 await _customerInfoRepository.DeleteAsync(x => x.CustomerId == customerEntity.Id);
                 await _orderRepository.DeleteAsync(x => x.CustomerId == customerEntity.Id);
