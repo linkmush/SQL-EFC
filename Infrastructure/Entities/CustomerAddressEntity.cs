@@ -13,14 +13,4 @@ public class CustomerAddressEntity
     public virtual CustomerEntity Customer { get; set; } = null!;
     public virtual AddressEntity Address { get; set; } = null!;
 
-    public static implicit operator CustomerAddressEntity(CustomerDto customer)
-    {
-        var customerAddressEntity = new CustomerAddressEntity
-        {
-            CustomerId = customer.CustomerId,
-            AddressId = customer.AddressId,
-        };
-
-        return customerAddressEntity;
-    }
 }

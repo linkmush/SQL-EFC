@@ -13,14 +13,4 @@ public class OrderEntity
     [ForeignKey(nameof(Customer))]     // implementerar Foreign Key
     public int? CustomerId { get; set; }
     public virtual CustomerEntity Customer { get; set; } = null!;
-
-    public static implicit operator OrderEntity(CustomerDto customer)
-    {
-        var orderEntity = new OrderEntity
-        {
-            CustomerId = customer.CustomerId
-        };
-
-        return orderEntity;
-    }
 }

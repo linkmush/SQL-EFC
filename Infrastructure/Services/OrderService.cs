@@ -14,7 +14,7 @@ public class OrderService(OrderRepository orderRepository, CustomerRepository cu
     private readonly CustomerAddressRepository _customerAddressRepository = customerAddressRepository;
     private readonly AddressRepository _addressRepository = addressRepository;
 
-    public async Task<bool> CreateCustomerAsync(CustomerDto customer, AddressDto address)
+    public async Task<bool> CreateCustomerAsync(CustomerRegistrationDto customer)
     {
         try
         {
@@ -23,34 +23,36 @@ public class OrderService(OrderRepository orderRepository, CustomerRepository cu
                 var customerEntity = await _customerRepository.GetOneAsync(x => x.Email == customer.Email);
                 if (customerEntity == null)
                 {
-                    customerEntity = await _customerRepository.CreateAsync(new CustomerEntity { Email = customer.Email });
 
-                    var addressEntity = await _addressRepository.CreateAsync(new AddressEntity
+                    customerEntity = new CustomerEntity
                     {
-                        StreetName = address.StreetName,
-                        PostalCode = address.PostalCode,
-                        City = address.City,
+                        Email = customer.Email,
+                        CustomerInfo = new CustomerInfoEntity
+                        {
+                            FirstName = customer.FirstName,
+                            LastName = customer.LastName
+                        },
+                    };
+
+                    customerEntity.CustomerAddress.Add(new CustomerAddressEntity
+                    {
+                        Address = new AddressEntity
+                        {
+                            StreetName = customer.StreetName,
+                            PostalCode = customer.PostalCode,
+                            City = customer.City,
+                        }
                     });
 
-                    var customerAddressEntity = await _customerAddressRepository.CreateAsync(new CustomerAddressEntity
-                    {
-                        CustomerId = customerEntity.Id,
-                        AddressId = addressEntity.Id
-                    });
+                    customerEntity = await _customerRepository.CreateAsync(customerEntity);
 
-                    var customerInfoEntity = await _customerInfoRepository.CreateAsync(new CustomerInfoEntity
-                    {
-                        CustomerId = customerEntity.Id,
-                        FirstName = customer.FirstName,
-                        LastName = customer.LastName,
-                    });
 
                     var orderEntity = await _orderRepository.CreateAsync(new OrderEntity
                     {
                         CustomerId = customerEntity.Id,
                     });
-
-                    if (addressEntity != null && customerAddressEntity != null && customerInfoEntity != null && orderEntity != null)
+                        
+                    if (orderEntity != null)
                         return true;
                 }
             }
@@ -69,11 +71,10 @@ public class OrderService(OrderRepository orderRepository, CustomerRepository cu
 
                 var customerDto = new CustomerDto
                 {
+                    Id = customerEntity.Id,
                     Email = customerEntity.Email,
                     FirstName = customerEntity.CustomerInfo.FirstName,
                     LastName = customerEntity.CustomerInfo.LastName,
-                    CustomerId = customerEntity.Id,
-                    AddressId = customerEntity.Id,
                 };
 
                 foreach (var customerRecord in customerEntity.CustomerAddress)
@@ -110,7 +111,6 @@ public class OrderService(OrderRepository orderRepository, CustomerRepository cu
                     Email = item.Email,
                     FirstName = item.CustomerInfo.FirstName,
                     LastName = item.CustomerInfo.LastName,
-                    CustomerId = item.CustomerInfo.CustomerId
                 };
 
                 if (customerDto != null)
@@ -140,30 +140,44 @@ public class OrderService(OrderRepository orderRepository, CustomerRepository cu
     {
         try
         {
-            if (!await _customerRepository.ExistsAsync(x => x.Email == customer.Email))
+            var updateCustomer = await _customerRepository.GetOneAsync(x => x.Id == customer.Id);
+            if (updateCustomer != null)
             {
-                var updateCustomer = await _customerRepository.GetOneAsync(x => x.Email == customer.Email);
-
-                if (updateCustomer != null)
+                if (updateCustomer.Email != customer.Email)
                 {
-                    updateCustomer.Email = customer.Email;
-                    updateCustomer.CustomerInfo.CustomerId = customer.CustomerId;
-                    updateCustomer.CustomerInfo.FirstName = customer.FirstName;
-                    updateCustomer.CustomerInfo.LastName = customer.LastName;
+                    if (!await _customerRepository.ExistsAsync(x => x.Email == customer.Email))
+                        updateCustomer.Email = customer.Email;
+                }
 
-                    await _customerRepository.UpdateAsync(x => x.Email == customer.Email, updateCustomer);
+                updateCustomer.CustomerInfo.FirstName = customer.FirstName;
+                updateCustomer.CustomerInfo.LastName = customer.LastName;
+
+                var updatedCustomerEntity = await _customerRepository.UpdateAsync(x => x.Id == updateCustomer.Id, updateCustomer);
+                if (updatedCustomerEntity != null)
+                {
+
 
                     var updatedCustomerDto = new CustomerDto
                     {
-                        Email = updateCustomer.Email,
-                        FirstName = updateCustomer.CustomerInfo.FirstName,
-                        LastName = updateCustomer.CustomerInfo.LastName,
-                        CustomerId = updateCustomer.Id,
+                        Email = updatedCustomerEntity.Email,
+                        FirstName = updatedCustomerEntity.CustomerInfo.FirstName,
+                        LastName = updatedCustomerEntity.CustomerInfo.LastName,
                     };
+
+                    foreach (var address in updatedCustomerEntity.CustomerAddress)
+                    {
+                        updatedCustomerDto.Addresses.Add(new AddressDto
+                        {
+                            StreetName = address.Address.StreetName,
+                            PostalCode = address.Address.PostalCode,
+                            City = address.Address.City
+                        });
+                    }
 
                     return updatedCustomerDto;
                 }
             }
+
         }
         catch (Exception ex) { Debug.WriteLine("ERROR :: " + ex.Message); }
         return null!;
@@ -182,7 +196,17 @@ public class OrderService(OrderRepository orderRepository, CustomerRepository cu
                 await _orderRepository.DeleteAsync(x => x.CustomerId == customerEntity.Id);
                 await _customerRepository.DeleteAsync(x => x.Email == customer.Email);
 
-                return true;
+                if (customerEntity == null)
+                {
+                    var addressEntity = await _addressRepository.GetOneAsync(x => x.Id == customer.Id);
+
+                    if (addressEntity != null)
+                    {
+                        await _addressRepository.DeleteAsync(x => x.Id == customer.Id);
+
+                        return true;
+                    }
+                }
             }
         }
         catch (Exception ex)

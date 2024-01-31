@@ -1,6 +1,7 @@
 ﻿using Infrastructure.Dtos;
 using Infrastructure.Entities;
 using Infrastructure.Services;
+using System.Net;
 using System.Net.NetworkInformation;
 using System.Net.WebSockets;
 
@@ -94,8 +95,7 @@ public class MenuService(OrderService orderService)
 
     public async Task ShowAddMenuAsync()
     {
-        CustomerDto customer = new();
-        AddressDto address = new();
+        CustomerRegistrationDto customer = new();
 
         Console.Clear();
         Console.WriteLine("Enter First Name:  ");
@@ -108,15 +108,15 @@ public class MenuService(OrderService orderService)
         customer.Email = Console.ReadLine()!;
 
         Console.WriteLine("Enter street name:  ");
-        address.StreetName = Console.ReadLine()!;
+        customer.StreetName = Console.ReadLine()!;
 
         Console.WriteLine("Enter postal code:  ");
-        address.PostalCode = Console.ReadLine()!;
+        customer.PostalCode = Console.ReadLine()!;
 
         Console.WriteLine("Enter city:  ");
-        address.City = Console.ReadLine()!;
+        customer.City = Console.ReadLine()!;
 
-        await _orderService.CreateCustomerAsync(customer, address);
+        await _orderService.CreateCustomerAsync(customer);
 
         Console.WriteLine();
         Console.WriteLine("Customer successfully added!");
@@ -152,7 +152,6 @@ public class MenuService(OrderService orderService)
                         Console.WriteLine($"{address.PostalCode} ");
                         Console.WriteLine($"{address.City} ");
                     }
-
                     Console.WriteLine();
 
                     count++;

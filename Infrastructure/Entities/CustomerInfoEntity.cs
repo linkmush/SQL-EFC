@@ -9,6 +9,7 @@ public class CustomerInfoEntity
     [Key]
     [ForeignKey(nameof(Customer))]
     public int? CustomerId { get; set; }
+    public virtual CustomerEntity Customer { get; set; } = null!;
 
     [Required]
     [Column(TypeName = "nvarchar(255)")]
@@ -18,13 +19,10 @@ public class CustomerInfoEntity
     [Column(TypeName = "nvarchar(255)")]
     public string LastName { get; set; } = null!;
 
-    public virtual CustomerEntity Customer { get; set; } = null!;
-
     public static implicit operator CustomerInfoEntity(CustomerDto customer)
     {
         var customerInfoEntity = new CustomerInfoEntity
         {
-            CustomerId = customer.CustomerId,
             FirstName = customer.FirstName,
             LastName = customer.LastName
         };

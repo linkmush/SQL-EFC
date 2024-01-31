@@ -126,14 +126,6 @@ public class AddressService(AddressRepository addressRepository)
     {
         try
         {
-            var addressEntity = await _addressRepository.GetOneAsync(x => x.Id == address.Id);
-
-            if (addressEntity != null)
-            {
-                await _addressRepository.DeleteAsync(x => x.Id == address.Id);
-
-                return true;
-            }
         }
         catch (Exception ex)
         {
