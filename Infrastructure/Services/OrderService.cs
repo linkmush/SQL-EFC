@@ -3,6 +3,7 @@ using Infrastructure.Entities;
 using Infrastructure.Repositories;
 using System.Diagnostics;
 using System.Linq.Expressions;
+using System.Net;
 
 namespace Infrastructure.Services;
 
@@ -191,22 +192,17 @@ public class OrderService(OrderRepository orderRepository, CustomerRepository cu
 
             if (customerEntity != null)
             {
-                await _customerAddressRepository.DeleteAsync(x => x.CustomerId == customerEntity.Id);
+
                 await _customerInfoRepository.DeleteAsync(x => x.CustomerId == customerEntity.Id);
                 await _orderRepository.DeleteAsync(x => x.CustomerId == customerEntity.Id);
                 await _customerRepository.DeleteAsync(x => x.Email == customer.Email);
 
-                if (customerEntity == null)
+                foreach (var addressDto in customerEntity.CustomerAddress)
                 {
-                    var addressEntity = await _addressRepository.GetOneAsync(x => x.Id == customer.Id);
-
-                    if (addressEntity != null)
-                    {
-                        await _addressRepository.DeleteAsync(x => x.Id == customer.Id);
-
-                        return true;
-                    }
+                    await _addressRepository.DeleteAsync(x => x.Id == addressDto.AddressId);
                 }
+
+                return true;
             }
         }
         catch (Exception ex)

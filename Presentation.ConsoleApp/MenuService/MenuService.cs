@@ -230,14 +230,36 @@ public class MenuService(OrderService orderService)
                 Console.WriteLine("Enter Email:  ");
                 customertoUpdate.Email = Console.ReadLine()!;
 
+                foreach ( var address in customertoUpdate.Addresses)
+                {
+                    Console.WriteLine("Enter StreetName:   ");
+                    address.StreetName = Console.ReadLine()!;
+
+                    Console.WriteLine("Enter PostalCode:   ");
+                    address.PostalCode = Console.ReadLine()!;
+
+                    Console.WriteLine("Enter City:   ");
+                    address.City = Console.ReadLine()!;
+                }
+
                 var updatedCustomerResult = await _orderService.UpdateAsync(customertoUpdate);
 
-                Console.WriteLine();
-                Console.WriteLine("Customer successfully updated!");
+                if (updatedCustomerResult != null)
+                {
+                    Console.WriteLine();
+                    Console.WriteLine("Customer successfully updated!");
 
-                Console.WriteLine();
-                Console.WriteLine("Press enter to continue...");
-                Console.ReadLine();
+                    Console.WriteLine();
+                    Console.WriteLine("Press enter to continue...");
+                    Console.ReadLine();
+                }
+                else
+                {
+                    Console.WriteLine("Failed to update customer");
+                    Console.WriteLine();
+                    Console.WriteLine("Press enter to continue...");
+                    Console.ReadLine();
+                }
             }
         }
     }
