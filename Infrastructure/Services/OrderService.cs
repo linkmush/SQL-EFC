@@ -3,7 +3,6 @@ using Infrastructure.Entities;
 using Infrastructure.Repositories;
 using System.Diagnostics;
 using System.Linq.Expressions;
-using System.Net;
 
 namespace Infrastructure.Services;
 
