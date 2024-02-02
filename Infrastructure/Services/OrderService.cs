@@ -153,32 +153,27 @@ public class OrderService(OrderRepository orderRepository, CustomerRepository cu
                 updateCustomer.CustomerInfo.FirstName = customer.FirstName;
                 updateCustomer.CustomerInfo.LastName = customer.LastName;
 
-                // Handle addresses
-                // Remove all addresses that are not in the incoming DTO
                 var existingAddresses = updateCustomer.CustomerAddress.Select(ca => ca.Address).ToList();
 
                 foreach (var existingAddress in existingAddresses)
                 {
                     if (!customer.Addresses.Any(a => a.Id == existingAddress.Id))
                     {
-                        await _addressRepository.DeleteAsync(x => x.Id == existingAddress.Id); // Remove the address entirely if not used by other customers
+                        await _addressRepository.DeleteAsync(x => x.Id == existingAddress.Id);
                     }
                 }
 
-                // Update existing addresses and add new ones
                 foreach (var addressDto in customer.Addresses)
                 {
                     var addressEntity = updateCustomer.CustomerAddress.FirstOrDefault(ca => ca.AddressId == addressDto.Id)?.Address;
                     if (addressEntity != null)
                     {
-                        // Update existing address
                         addressEntity.StreetName = addressDto.StreetName;
                         addressEntity.PostalCode = addressDto.PostalCode;
                         addressEntity.City = addressDto.City;
                     }
                     else
                     {
-                        // Add new address
                         var newAddress = new AddressEntity
                         {
                             StreetName = addressDto.StreetName,
