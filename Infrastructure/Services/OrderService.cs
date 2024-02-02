@@ -3,6 +3,7 @@ using Infrastructure.Entities;
 using Infrastructure.Repositories;
 using System.Diagnostics;
 using System.Linq.Expressions;
+using System.Net;
 
 namespace Infrastructure.Services;
 
@@ -152,30 +153,46 @@ public class OrderService(OrderRepository orderRepository, CustomerRepository cu
                 updateCustomer.CustomerInfo.FirstName = customer.FirstName;
                 updateCustomer.CustomerInfo.LastName = customer.LastName;
 
-                var updatedCustomerEntity = await _customerRepository.UpdateAsync(x => x.Id == updateCustomer.Id, updateCustomer);
-                if (updatedCustomerEntity != null)
+                // Handle addresses
+                // Remove all addresses that are not in the incoming DTO
+                var existingAddresses = updateCustomer.CustomerAddress.Select(ca => ca.Address).ToList();
+
+                foreach (var existingAddress in existingAddresses)
                 {
-
-
-                    var updatedCustomerDto = new CustomerDto
+                    if (!customer.Addresses.Any(a => a.Id == existingAddress.Id))
                     {
-                        Email = updatedCustomerEntity.Email,
-                        FirstName = updatedCustomerEntity.CustomerInfo.FirstName,
-                        LastName = updatedCustomerEntity.CustomerInfo.LastName,
-                    };
-
-                    foreach (var address in updatedCustomerEntity.CustomerAddress)
-                    {
-                        updatedCustomerDto.Addresses.Add(new AddressDto
-                        {
-                            StreetName = address.Address.StreetName,
-                            PostalCode = address.Address.PostalCode,
-                            City = address.Address.City
-                        });
+                        await _addressRepository.DeleteAsync(x => x.Id == existingAddress.Id); // Remove the address entirely if not used by other customers
                     }
-
-                    return updatedCustomerDto;
                 }
+
+                // Update existing addresses and add new ones
+                foreach (var addressDto in customer.Addresses)
+                {
+                    var addressEntity = updateCustomer.CustomerAddress.FirstOrDefault(ca => ca.AddressId == addressDto.Id)?.Address;
+                    if (addressEntity != null)
+                    {
+                        // Update existing address
+                        addressEntity.StreetName = addressDto.StreetName;
+                        addressEntity.PostalCode = addressDto.PostalCode;
+                        addressEntity.City = addressDto.City;
+                    }
+                    else
+                    {
+                        // Add new address
+                        var newAddress = new AddressEntity
+                        {
+                            StreetName = addressDto.StreetName,
+                            PostalCode = addressDto.PostalCode,
+                            City = addressDto.City
+                        };
+                        updateCustomer.CustomerAddress.Add(new CustomerAddressEntity { Address = newAddress });
+                    }
+                }
+
+                var updatedCustomerEntity = await _customerRepository.UpdateAsync(x => x.Id == updateCustomer.Id, updateCustomer);
+
+                return customer;
+
             }
 
         }
