@@ -230,7 +230,7 @@ public class MenuService(OrderService orderService)
                 Console.WriteLine("Enter Email:  ");
                 customertoUpdate.Email = Console.ReadLine()!;
 
-                foreach ( var address in customertoUpdate.Addresses)
+                foreach (var address in customertoUpdate.Addresses)
                 {
                     Console.WriteLine("Enter StreetName:   ");
                     address.StreetName = Console.ReadLine()!;
