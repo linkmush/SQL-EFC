@@ -2,6 +2,6 @@
 
 public class CurrencyDto
 {
-    public string CurrencyCode { get; set; } = null!;
-    public string Currency { get; set; } = null!;
+    public string Code { get; set; } = null!;
+    public string Currency1 { get; set; } = null!;
 }
