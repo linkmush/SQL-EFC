@@ -6,8 +6,7 @@ using System.Diagnostics;
 using System.Linq.Expressions;
 
 namespace Infrastructure.Repositories;
-
-public class CustomerAddressRepository(LocalDatabaseContext context) : BaseRepository<CustomerAddressEntity>(context), ICustomerAddressRepository
+public class CustomerAddressRepository(LocalDatabaseContext context) : BaseRepository<CustomerAddressEntity, LocalDatabaseContext>(context), ICustomerAddressRepository
 {
     private readonly LocalDatabaseContext _context = context;
 

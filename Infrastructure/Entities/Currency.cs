@@ -16,4 +16,7 @@ public partial class Currency
     [Column("Currency")]
     [StringLength(20)]
     public string Currency1 { get; set; } = null!;
+
+    [InverseProperty("CurrencyCodeNavigation")]
+    public virtual ICollection<ProductPrice> ProductPrices { get; set; } = new List<ProductPrice>();
 }

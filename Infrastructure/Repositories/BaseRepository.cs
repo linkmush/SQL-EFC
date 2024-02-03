@@ -6,11 +6,11 @@ using System.Linq.Expressions;
 
 namespace Infrastructure.Repositories;
 
-public abstract class BaseRepository<TEntity> : IBaseRepository<TEntity> where TEntity : class
+public abstract class BaseRepository<TEntity, TContext> : IBaseRepository<TEntity> where TEntity : class where TContext : DbContext
 {
-    private readonly LocalDatabaseContext _context;
+    private readonly TContext _context;
 
-    protected BaseRepository(LocalDatabaseContext context)
+    protected BaseRepository(TContext context)
     {
         _context = context;
     }

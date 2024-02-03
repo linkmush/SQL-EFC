@@ -32,4 +32,7 @@ public partial class Product
     [ForeignKey("ManufacturerId")]
     [InverseProperty("Products")]
     public virtual Manufacturer Manufacturer { get; set; } = null!;
+
+    [InverseProperty("ArticleNumberNavigation")]
+    public virtual ProductPrice? ProductPrice { get; set; }
 }

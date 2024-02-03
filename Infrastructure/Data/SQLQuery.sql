@@ -29,7 +29,7 @@ CREATE TABLE Products
 
 CREATE TABLE ProductPrices 
 (
-	ArticleNumber INT REFERENCES Products(ArticleNumber) NOT NULL,
+	ArticleNumber INT PRIMARY KEY REFERENCES Products(ArticleNumber) NOT NULL,
 	Price MONEY NOT NULL,
 	CurrencyCode CHAR(3) REFERENCES Currencies(Code) NOT NULL
 )

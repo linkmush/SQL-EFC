@@ -6,7 +6,7 @@ using Microsoft.EntityFrameworkCore;
 
 namespace Infrastructure.Entities;
 
-[Index("Manufacture", Name = "UQ__Manufact__C624340F6FE259DC", IsUnique = true)]
+[Index("Manufacture", Name = "UQ__Manufact__C624340F20A9CB2F", IsUnique = true)]
 public partial class Manufacturer
 {
     [Key]

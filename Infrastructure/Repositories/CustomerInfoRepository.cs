@@ -4,7 +4,7 @@ using Infrastructure.Interfaces;
 
 namespace Infrastructure.Repositories;
 
-public class CustomerInfoRepository(LocalDatabaseContext context) : BaseRepository<CustomerInfoEntity>(context), ICustomerInfoRepository
+public class CustomerInfoRepository(LocalDatabaseContext context) : BaseRepository<CustomerInfoEntity, LocalDatabaseContext>(context), ICustomerInfoRepository
 {
     private readonly LocalDatabaseContext _context = context;
 }

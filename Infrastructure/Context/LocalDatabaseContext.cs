@@ -10,7 +10,7 @@ public class LocalDatabaseContext : DbContext
     {
     }
 
-    public LocalDatabaseContext(DbContextOptions options) : base(options)
+    public LocalDatabaseContext(DbContextOptions<LocalDatabaseContext> options) : base(options)
     {
     }
 
