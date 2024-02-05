@@ -19,30 +19,23 @@ public class ProductService(CategoryRepository categoryRepository, CurrencyRepos
     {
         try
         {
-            // Check if the product with the given ArticleNumber already exists
             if (!await _productRepository.ExistsAsync(x => x.ArticleNumber == product.ArticleNumber))
             {
-                // Check if the Manufacturer already exists
                 var manufacturerEntity = await _manufacturerRepository.GetOneAsync(x => x.Manufacture == product.Manufacturer.Manufacture);
                 if (manufacturerEntity == null)
                 {
-                    // If Manufacturer does not exist, create a new one
                     manufacturerEntity = await _manufacturerRepository.CreateAsync(new Manufacturer { Manufacture = product.Manufacturer.Manufacture });
                 }
 
-                // Check if the Category already exists
                 var categoryEntity = await _categoryRepository.GetOneAsync(x => x.Categoryname == product.Category.CategoryName);
                 if (categoryEntity == null)
                 {
-                    // If Category does not exist, create a new one
                     categoryEntity = await _categoryRepository.CreateAsync(new Category { Categoryname = product.Category.CategoryName });
                 }
 
-                // Check if the Currency already exists
                 var currencyEntity = await _currencyRepository.GetOneAsync(x => x.Code == product.ProductPrice.Currency.Code);
                 if (currencyEntity == null)
                 {
-                    // If Currency does not exist, create a new one
                     currencyEntity = await _currencyRepository.CreateAsync(new Currency
                     {
                         Code = product.ProductPrice.Currency.Code,
@@ -50,7 +43,6 @@ public class ProductService(CategoryRepository categoryRepository, CurrencyRepos
                     });
                 }
 
-                // Create the ProductEntity
                 var productEntity = new Product
                 {
                     Title = product.Title,
@@ -68,7 +60,6 @@ public class ProductService(CategoryRepository categoryRepository, CurrencyRepos
                     },
                 };
 
-                // Save the ProductEntity to the database
                 await _productRepository.CreateAsync(productEntity);
 
                 return true;
