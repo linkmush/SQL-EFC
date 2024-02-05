@@ -6,19 +6,19 @@
 
 CREATE TABLE Manufacturers 
 (
-	Id INT PRIMARY KEY NOT NULL,
+	Id INT PRIMARY KEY IDENTITY NOT NULL,
 	Manufacture nvarchar(50) unique NOT NULL
 )
 
 CREATE TABLE Categories 
 (
-	Id INT PRIMARY KEY NOT NULL,
+	Id INT PRIMARY KEY IDENTITY NOT NULL,
 	Categoryname nvarchar(50) NOT NULL
 )
 
 CREATE TABLE Products 
 (
-	ArticleNumber INT PRIMARY KEY NOT NULL,
+	ArticleNumber INT PRIMARY KEY IDENTITY NOT NULL,
 	Title nvarchar(250) NOT NULL,
 	ManufacturerId INT REFERENCES Manufacturers(Id) NOT NULL,
 	CategoryId INT REFERENCES Categories(Id) NOT NULL,

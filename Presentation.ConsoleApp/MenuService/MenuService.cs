@@ -1,16 +1,15 @@
 ﻿using Infrastructure.Dtos;
 using Infrastructure.Entities;
+using Infrastructure.Repositories;
 using Infrastructure.Services;
-using System.Net;
-using System.Net.NetworkInformation;
-using System.Net.WebSockets;
 
 namespace Presentation.ConsoleApp.MenuService;
 
-public class MenuService(OrderService orderService)
+public class MenuService(OrderService orderService, ProductService productService, CurrencyRepository currencyRepository)
 {
     private readonly OrderService _orderService = orderService;
-
+    private readonly ProductService _productService = productService;
+    private readonly CurrencyRepository _currencyRepository = currencyRepository;
 
     public async Task ShowMainMenu()
     {
@@ -33,9 +32,9 @@ public class MenuService(OrderService orderService)
                 case "1":
                     await ShowCodeFirstMenu();
                     break;
-               // case "2":
-                 //   await ShowDataBaseFirstMenu();
-                  //  break;
+                case "2":
+                    await ShowDataBaseFirstMenu();
+                    break;
                 case "3":
                     Environment.Exit(0);
                     break;
@@ -48,7 +47,7 @@ public class MenuService(OrderService orderService)
         }
     }
 
-    public async Task ShowCodeFirstMenu ()
+    public async Task ShowCodeFirstMenu()
     {
         while (true)
         {
@@ -93,6 +92,125 @@ public class MenuService(OrderService orderService)
         }
     }
 
+    public async Task ShowDataBaseFirstMenu()
+    {
+        while (true)
+        {
+            Console.Clear();
+            Console.WriteLine("----MENU DATABASE FIRST----");
+            Console.WriteLine();
+            Console.WriteLine("1. Add new Product");
+            Console.WriteLine("2. Show all Products");
+            Console.WriteLine("3. Show specific product");
+            Console.WriteLine("4. Update product");
+            Console.WriteLine("5. Delete product");
+            Console.WriteLine("6. Exit");
+
+            var choice = Console.ReadLine();
+
+            switch (choice)
+            {
+                case "1":
+                    await ShowAddProductAsync();
+                    break;
+                case "2":
+                //    await ShowAllProductsAsync();
+                //    break;
+                //case "3":
+                //    await ShowObjectProdocutAsync();
+                //    break;
+                //case "4":
+                //    await ShowUpdateProductAsync();
+                //    break;
+                //case "5":
+                //    await ShowDeletedProductAsync();
+                //    break;
+                case "6":
+                    Environment.Exit(0);
+                    break;
+                default:
+                    Console.WriteLine("Invalid option, please try again");
+                    break;
+            }
+
+            Console.ReadKey();
+        }
+    }
+
+    public async Task ShowAddProductAsync()
+    {
+        ProductDto product = new();
+
+        Console.Clear();
+        Console.WriteLine("Enter Title:  ");
+        product.Title = Console.ReadLine()!;
+
+        Console.WriteLine("Enter preamble:  ");
+        product.Preamble = Console.ReadLine()!;
+
+        Console.WriteLine("Enter description:  ");
+        product.Description = Console.ReadLine()!;
+
+        Console.WriteLine("Enter specification:  ");
+        product.Specification = Console.ReadLine()!;
+
+        Console.WriteLine("Enter categoryname:  ");
+        product.Category.CategoryName = Console.ReadLine()!;
+
+        Console.WriteLine("Enter manufacturer:  ");
+        product.Manufacturer.Manufacture = Console.ReadLine()!;
+
+        Console.WriteLine("Enter price:  ");
+        product.ProductPrice.Price = decimal.Parse(Console.ReadLine()!);
+
+        Console.WriteLine("Enter currency code:  ");
+        string currencyCode = Console.ReadLine()!;
+
+        // Check if the currency code already exists
+        Currency existingCurrency = await _currencyRepository.GetOneAsync(x => x.Code == currencyCode);
+
+        if (existingCurrency == null)
+        {
+            Console.WriteLine("Currency code not found. Enter full currency name: ");
+            string currencyName = Console.ReadLine()!;
+
+            // Create a new Currency entity
+            Currency newCurrency = new Currency
+            {
+                Code = currencyCode,
+                Currency1 = currencyName
+            };
+
+            // Save the new currency to the database
+            await _currencyRepository.CreateAsync(newCurrency);
+
+            // Set the currency information in the product
+            product.ProductPrice.Currency = new CurrencyDto
+            {
+                Code = currencyCode,
+                Currency1 = currencyName
+            };
+        }
+        else
+        {
+            // Set the currency information in the product using the existing currency
+            product.ProductPrice.Currency = new CurrencyDto
+            {
+                Code = existingCurrency.Code,
+                Currency1 = existingCurrency.Currency1
+            };
+        }
+
+        await _productService.CreateProductAsync(product);
+
+        Console.WriteLine();
+        Console.WriteLine("Product successfully added!");
+
+        Console.WriteLine();
+        Console.WriteLine("Press enter to continue...");
+        Console.ReadLine();
+    }
+
     public async Task ShowAddMenuAsync()
     {
         CustomerRegistrationDto customer = new();
@@ -131,7 +249,7 @@ public class MenuService(OrderService orderService)
     {
         var result = await _orderService.GetAllAsync();
 
-        if (result !=null)
+        if (result != null)
         {
             var users = result as List<CustomerDto>;
 

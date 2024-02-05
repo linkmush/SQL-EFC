@@ -19,43 +19,66 @@ public class ProductService(CategoryRepository categoryRepository, CurrencyRepos
     {
         try
         {
+            // Check if the product with the given ArticleNumber already exists
             if (!await _productRepository.ExistsAsync(x => x.ArticleNumber == product.ArticleNumber))
             {
-                var productEntity = await _productRepository.GetOneAsync(x => x.ArticleNumber == product.ArticleNumber);
-                if (productEntity != null)
+                // Check if the Manufacturer already exists
+                var manufacturerEntity = await _manufacturerRepository.GetOneAsync(x => x.Manufacture == product.Manufacturer.Manufacture);
+                if (manufacturerEntity == null)
                 {
-                    productEntity = new Product
-                    {
-                        Title = product.Title,
-                        ManufacturerId = product.ManufacturerId,
-                        CategoryId = product.CategoryId,
-                        Preamble = product.Preamble,
-                        Description = product.Description,
-                        Specification = product.Specification,
-                        Category = new Category
-                        {
-                            Categoryname = product.Category.CategoryName,
-                        },
-                        Manufacturer = new Manufacturer
-                        {
-                            Manufacture = product.Manufacturer.Manufacture
-                        },
-                        ProductPrice = new ProductPrice
-                        {
-                            Price = product.ProductPrice.Price,
-                            CurrencyCodeNavigation = new Currency
-                            {
-                                Code = product.ProductPrice.Currency.Code,
-                            }
-                        }
-                    };
-                    await _productRepository.CreateAsync(productEntity);
-
-                    return true;
+                    // If Manufacturer does not exist, create a new one
+                    manufacturerEntity = await _manufacturerRepository.CreateAsync(new Manufacturer { Manufacture = product.Manufacturer.Manufacture });
                 }
+
+                // Check if the Category already exists
+                var categoryEntity = await _categoryRepository.GetOneAsync(x => x.Categoryname == product.Category.CategoryName);
+                if (categoryEntity == null)
+                {
+                    // If Category does not exist, create a new one
+                    categoryEntity = await _categoryRepository.CreateAsync(new Category { Categoryname = product.Category.CategoryName });
+                }
+
+                // Check if the Currency already exists
+                var currencyEntity = await _currencyRepository.GetOneAsync(x => x.Code == product.ProductPrice.Currency.Code);
+                if (currencyEntity == null)
+                {
+                    // If Currency does not exist, create a new one
+                    currencyEntity = await _currencyRepository.CreateAsync(new Currency
+                    {
+                        Code = product.ProductPrice.Currency.Code,
+                        Currency1 = product.ProductPrice.Currency.Currency1,
+                    });
+                }
+
+                // Create the ProductEntity
+                var productEntity = new Product
+                {
+                    Title = product.Title,
+                    Preamble = product.Preamble,
+                    Description = product.Description,
+                    Specification = product.Specification,
+                    Manufacturer = manufacturerEntity,
+                    Category = categoryEntity,
+                    ManufacturerId = manufacturerEntity.Id,
+                    CategoryId = categoryEntity.Id,
+                    ProductPrice = new ProductPrice
+                    {
+                        Price = product.ProductPrice.Price,
+                        CurrencyCodeNavigation = currencyEntity,
+                    },
+                };
+
+                // Save the ProductEntity to the database
+                await _productRepository.CreateAsync(productEntity);
+
+                return true;
             }
         }
-        catch (Exception ex) { Debug.WriteLine("ERROR :: " + ex.Message); }
+        catch (Exception ex)
+        {
+            Debug.WriteLine("ERROR :: " + ex.Message);
+        }
+
         return false;
     }
 
@@ -200,5 +223,35 @@ public class ProductService(CategoryRepository categoryRepository, CurrencyRepos
         }
         catch (Exception ex) { Debug.WriteLine("ERROR :: " + ex.Message); }
         return null!;
+    }
+
+    public async Task<bool> DeleteAsync(ProductDto product)
+    {
+        try
+        {
+            var productEntity = await _productRepository.GetOneAsync(x => x.ArticleNumber == product.ArticleNumber);
+
+            if (productEntity != null)
+            {
+                await _manufacturerRepository.DeleteAsync(x => x.Id == productEntity.ManufacturerId);
+                await _categoryRepository.DeleteAsync(x => x.Id == productEntity.CategoryId);
+                await _productPriceRepository.DeleteAsync(x => x.ArticleNumber == productEntity.ArticleNumber);
+
+                if (productEntity.ProductPrice != null)
+                {
+                    await _currencyRepository.DeleteAsync(x => x.Code == productEntity.ProductPrice.CurrencyCodeNavigation.Code);
+                }
+
+                await _productRepository.DeleteAsync(x => x.ArticleNumber == productEntity.ArticleNumber);
+
+                return true;
+            }
+        }
+        catch (Exception ex)
+        {
+            Debug.WriteLine("ERROR :: " + ex.Message);
+        }
+
+        return false;
     }
 }
