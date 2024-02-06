@@ -110,7 +110,7 @@ public class ProductService(CategoryRepository categoryRepository, CurrencyRepos
                         Price = productEntity.ProductPrice.Price,
                         Currency = new CurrencyDto
                         {
-                            Currency1 = productEntity.ProductPrice.CurrencyCode,
+                            Currency1 = productEntity.ProductPrice.CurrencyCodeNavigation.Currency1,
                             Code = productEntity.ProductPrice.CurrencyCode
                         }
                     };
@@ -160,7 +160,7 @@ public class ProductService(CategoryRepository categoryRepository, CurrencyRepos
                         Price = item.ProductPrice.Price,
                         Currency = new CurrencyDto
                         {
-                            Currency1 = item.ProductPrice.CurrencyCode,
+                            Currency1 = item.ProductPrice.CurrencyCodeNavigation.Currency1,
                             Code = item.ProductPrice.CurrencyCode
                         }
                     };
@@ -262,15 +262,7 @@ public class ProductService(CategoryRepository categoryRepository, CurrencyRepos
 
             if (productEntity != null)
             {
-                await _manufacturerRepository.DeleteAsync(x => x.Id == productEntity.ManufacturerId);
-                await _categoryRepository.DeleteAsync(x => x.Id == productEntity.CategoryId);
                 await _productPriceRepository.DeleteAsync(x => x.ArticleNumber == productEntity.ArticleNumber);
-
-                if (productEntity.ProductPrice != null)
-                {
-                    await _currencyRepository.DeleteAsync(x => x.Code == productEntity.ProductPrice.CurrencyCodeNavigation.Code);
-                }
-
                 await _productRepository.DeleteAsync(x => x.ArticleNumber == productEntity.ArticleNumber);
 
                 return true;

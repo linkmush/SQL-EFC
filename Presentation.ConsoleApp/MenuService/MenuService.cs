@@ -122,9 +122,9 @@ public class MenuService(OrderService orderService, ProductService productServic
                 case "4":
                     await ShowUpdateProductAsync();
                     break;
-                //case "5":
-                //    await ShowDeletedProductAsync();
-                //    break;
+                case "5":
+                    await ShowDeletedProductAsync();
+                    break;
                 case "6":
                     Environment.Exit(0);
                     break;
@@ -229,7 +229,7 @@ public class MenuService(OrderService orderService, ProductService productServic
                     Console.WriteLine($"{user.Specification}");
                     Console.WriteLine($"{user.Manufacturer.Manufacture} ");
                     Console.WriteLine($"{user.Category.CategoryName}");
-                    Console.WriteLine($"{user.ProductPrice.Price} {user.ProductPrice.CurrencyCode} {user.ProductPrice.Currency.Currency1}");
+                    Console.WriteLine($"{user.ProductPrice.Price} {user.ProductPrice.Currency.Code} {user.ProductPrice.Currency.Currency1}  ");
                     Console.WriteLine();
 
                     count++;
@@ -269,7 +269,7 @@ public class MenuService(OrderService orderService, ProductService productServic
                 Console.WriteLine($"{result.Specification}");
                 Console.WriteLine($"{result.Manufacturer.Manufacture} ");
                 Console.WriteLine($"{result.Category.CategoryName}");
-                Console.WriteLine($"{result.ProductPrice.Price} {result.ProductPrice.CurrencyCode} {result.ProductPrice.Currency.Currency1}");
+                Console.WriteLine($"{result.ProductPrice.Price} {result.ProductPrice.Currency.Code} {result.ProductPrice.Currency.Currency1}");
                 Console.WriteLine();
                 Console.WriteLine();
                 Console.WriteLine("-----PRESS ANY KEY TO RETURN TO MENU-----");
@@ -345,6 +345,32 @@ public class MenuService(OrderService orderService, ProductService productServic
                     Console.ReadLine();
                 }
             }
+        }
+    }
+
+    public async Task ShowDeletedProductAsync()
+    {
+        Console.WriteLine("Type the article number of the product you want to delete: ");
+
+        var articleNumberInput = Console.ReadLine();
+
+        if (int.TryParse(articleNumberInput, out int articleNumber))
+        {
+            var deleteResult = await _productService.DeleteAsync(new ProductDto { ArticleNumber = articleNumber });
+
+            if (deleteResult)
+            {
+                Console.WriteLine();
+                Console.WriteLine("Product successfully deleted!");
+            }
+            else
+            {
+                Console.WriteLine("Failed to delete the product.");
+            }
+        }
+        else
+        {
+            Console.WriteLine("Invalid article number.");
         }
     }
 
