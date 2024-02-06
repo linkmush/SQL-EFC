@@ -222,7 +222,7 @@ public class ProductService(CategoryRepository categoryRepository, CurrencyRepos
                 {
                     updateProduct.ProductPrice.Price = product.ProductPrice.Price;
 
-                    if (!string.IsNullOrWhiteSpace(product.ProductPrice.Currency?.Code))
+                    if (product.ProductPrice.Currency.Code != null)
                     {
                         var currencyExists = await _currencyRepository.ExistsAsync(c => c.Code == product.ProductPrice.Currency.Code);
 
