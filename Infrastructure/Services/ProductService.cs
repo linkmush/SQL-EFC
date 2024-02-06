@@ -140,6 +140,7 @@ public class ProductService(CategoryRepository categoryRepository, CurrencyRepos
                     CategoryId = item.CategoryId,
                     Preamble = item.Preamble,
                     Description = item.Description,
+                    Specification = item.Specification,
                     Category = new CategoryDto
                     {
                         Id = item.Category.Id,
@@ -181,26 +182,63 @@ public class ProductService(CategoryRepository categoryRepository, CurrencyRepos
             var updateProduct = await _productRepository.GetOneAsync(x => x.ArticleNumber == product.ArticleNumber);
             if (updateProduct != null)
             {
-                if (updateProduct.ArticleNumber != product.ArticleNumber)
-                {
-                    if (!await _productRepository.ExistsAsync(x => x.ArticleNumber == product.ArticleNumber))
-                        updateProduct.ArticleNumber = product.ArticleNumber;
-                }
                 updateProduct.Title = product.Title;
                 updateProduct.Preamble = product.Preamble;
                 updateProduct.Description = product.Description;
-                updateProduct.Category.Categoryname = product.Category.CategoryName;
-                updateProduct.Manufacturer.Manufacture = product.Manufacturer.Manufacture;
+                updateProduct.Specification = product.Specification;
+
+                if (product.Category != null)
+                {
+                    var categoryExists = await _categoryRepository.ExistsAsync(x => x.Categoryname == product.Category.CategoryName);
+
+                    if (categoryExists)
+                    {
+                        var existingCategory = await _categoryRepository.GetOneAsync(c => c.Categoryname == product.Category.CategoryName);
+                        updateProduct.Category = existingCategory;
+                    }
+                    else
+                    {
+                        updateProduct.Category = new Category { Categoryname = product.Category.CategoryName };
+                    }
+                }
+
+                if (product.Manufacturer != null)
+                {
+                    var manufacturerExists = await _manufacturerRepository.ExistsAsync(x => x.Manufacture == product.Manufacturer.Manufacture);
+
+                    if (manufacturerExists)
+                    {
+                        var existingManufacturer = await _manufacturerRepository.GetOneAsync(c => c.Manufacture == product.Manufacturer.Manufacture);
+                        updateProduct.Manufacturer = existingManufacturer;
+                    }
+                    else
+                    {
+                        updateProduct.Manufacturer = new Manufacturer { Manufacture = product.Manufacturer.Manufacture };
+                    }
+                }
 
 
                 if (updateProduct.ProductPrice != null)
                 {
                     updateProduct.ProductPrice.Price = product.ProductPrice.Price;
 
-                    if (updateProduct.ProductPrice.CurrencyCodeNavigation != null)
+                    if (!string.IsNullOrWhiteSpace(product.ProductPrice.Currency?.Code))
                     {
-                        updateProduct.ProductPrice.CurrencyCodeNavigation.Code = product.ProductPrice.Currency.Code;
-                        updateProduct.ProductPrice.CurrencyCodeNavigation.Currency1 = product.ProductPrice.Currency.Currency1;
+                        var currencyExists = await _currencyRepository.ExistsAsync(c => c.Code == product.ProductPrice.Currency.Code);
+
+                        if (currencyExists)
+                        {
+                            var existingCurrency = await _currencyRepository.GetOneAsync(c => c.Code == product.ProductPrice.Currency.Code);
+                            updateProduct.ProductPrice.CurrencyCodeNavigation = existingCurrency;
+                        }
+                        else
+                        {
+                            updateProduct.ProductPrice.CurrencyCodeNavigation = new Currency
+                            {
+                                Code = product.ProductPrice.Currency.Code,
+                                Currency1 = product.ProductPrice.Currency.Currency1
+                            };
+                        }
                     }
                 }
 
