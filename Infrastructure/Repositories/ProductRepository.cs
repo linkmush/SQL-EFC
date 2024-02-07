@@ -15,7 +15,7 @@ public class ProductRepository(DataContext context) : BaseRepository<Product, Da
     {
         try
         {
-            var result = await _context.Products.Include(i => i.Manufacturer).Include(i => i.Category).Include(i => i.ProductPrice).ThenInclude(i => i.CurrencyCodeNavigation).ToListAsync();
+            var result = await _context.Products.Include(i => i.Manufacturer).Include(i => i.Category).Include(i => i.ProductPrice!).ThenInclude(i => i.CurrencyCodeNavigation).ToListAsync();
             if (result != null)
             {
                 return result;
@@ -29,7 +29,7 @@ public class ProductRepository(DataContext context) : BaseRepository<Product, Da
     {
         try
         {
-            var result = await _context.Products.Include(i => i.Manufacturer).Include(i => i.Category).Include(i => i.ProductPrice).ThenInclude(i => i.CurrencyCodeNavigation).FirstOrDefaultAsync(predicate);
+            var result = await _context.Products.Include(i => i.Manufacturer).Include(i => i.Category).Include(i => i.ProductPrice!).ThenInclude(i => i.CurrencyCodeNavigation).FirstOrDefaultAsync(predicate);
             if (result != null)
             {
                 return result;
