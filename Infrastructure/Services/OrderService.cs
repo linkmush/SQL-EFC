@@ -1,18 +1,19 @@
 ﻿using Infrastructure.Dtos;
 using Infrastructure.Entities;
+using Infrastructure.Interfaces;
 using Infrastructure.Repositories;
 using System.Diagnostics;
 using System.Linq.Expressions;
 
 namespace Infrastructure.Services;
 
-public class OrderService(OrderRepository orderRepository, CustomerRepository customerRepository, CustomerInfoRepository customerInfoRepository, CustomerAddressRepository customerAddressRepository, AddressRepository addressRepository)
+public class OrderService(IOrderRepository orderRepository, ICustomerRepository customerRepository, ICustomerInfoRepository customerInfoRepository, ICustomerAddressRepository customerAddressRepository, IAddressRepository addressRepository) : IOrderService
 {
-    private readonly OrderRepository _orderRepository = orderRepository;
-    private readonly CustomerRepository _customerRepository = customerRepository;
-    private readonly CustomerInfoRepository _customerInfoRepository = customerInfoRepository;
-    private readonly CustomerAddressRepository _customerAddressRepository = customerAddressRepository;
-    private readonly AddressRepository _addressRepository = addressRepository;
+    private readonly IOrderRepository _orderRepository = orderRepository;
+    private readonly ICustomerRepository _customerRepository = customerRepository;
+    private readonly ICustomerInfoRepository _customerInfoRepository = customerInfoRepository;
+    private readonly ICustomerAddressRepository _customerAddressRepository = customerAddressRepository;
+    private readonly IAddressRepository _addressRepository = addressRepository;
 
     public async Task<bool> CreateCustomerAsync(CustomerRegistrationDto customer)
     {
@@ -51,7 +52,7 @@ public class OrderService(OrderRepository orderRepository, CustomerRepository cu
                     {
                         CustomerId = customerEntity.Id,
                     });
-                        
+
                     if (orderEntity != null)
                         return true;
                 }

@@ -1,6 +1,7 @@
-﻿namespace Infrastructure.Interfaces
+﻿using Infrastructure.Entities;
+
+namespace Infrastructure.Interfaces;
+
+public interface ICurrencyRepository : IBaseRepository<Currency>
 {
-    internal interface ICurrencyRepository
-    {
-    }
 }

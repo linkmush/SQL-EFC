@@ -1,15 +1,16 @@
 ﻿using Infrastructure.Dtos;
 using Infrastructure.Entities;
+using Infrastructure.Interfaces;
 using Infrastructure.Repositories;
 using Infrastructure.Services;
 
 namespace Presentation.ConsoleApp.MenuService;
 
-public class MenuService(OrderService orderService, ProductService productService, CurrencyRepository currencyRepository)
+public class MenuService(IOrderService orderService, IProductService productService, ICurrencyRepository currencyRepository)
 {
-    private readonly OrderService _orderService = orderService;
-    private readonly ProductService _productService = productService;
-    private readonly CurrencyRepository _currencyRepository = currencyRepository;
+    private readonly IOrderService _orderService = orderService;
+    private readonly IProductService _productService = productService;
+    private readonly ICurrencyRepository _currencyRepository = currencyRepository;
 
     public async Task ShowMainMenu()
     {

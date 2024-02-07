@@ -1,6 +1,7 @@
-﻿namespace Infrastructure.Interfaces
+﻿using Infrastructure.Entities;
+
+namespace Infrastructure.Interfaces;
+
+public interface IProductRepository : IBaseRepository<Product>
 {
-    internal interface IProductRepository
-    {
-    }
 }

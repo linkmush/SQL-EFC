@@ -12,22 +12,22 @@ var builder = Host.CreateDefaultBuilder().ConfigureServices(services =>
     services.AddDbContext<LocalDatabaseContext>(x => x.UseSqlServer(@"Data Source=(LocalDB)\MSSQLLocalDB;AttachDbFilename=C:\Projects\SQL-EFC\Infrastructure\Data\local_database.mdf;Integrated Security=True;Connect Timeout=30", x => x.MigrationsAssembly(nameof(Infrastructure))));
     services.AddDbContext<DataContext>(x => x.UseSqlServer("Data Source=(LocalDB)\\MSSQLLocalDB;AttachDbFilename=C:\\Projects\\SQL-EFC\\Infrastructure\\Data\\local_ProductCatalog_dbf.mdf;Integrated Security=True"));
 
-    services.AddScoped<OrderRepository>();
-    services.AddScoped<CustomerRepository>();
-    services.AddScoped<CustomerInfoRepository>();
-    services.AddScoped<CustomerAddressRepository>();
-    services.AddScoped<AddressRepository>();
+    services.AddScoped<ICustomerRepository, CustomerRepository>();
+    services.AddScoped<IOrderRepository, OrderRepository>();
+    services.AddScoped<ICustomerInfoRepository, CustomerInfoRepository>();
+    services.AddScoped<ICustomerAddressRepository, CustomerAddressRepository>();
+    services.AddScoped<IAddressRepository, AddressRepository>();
 
-    services.AddScoped<ProductRepository>();
-    services.AddScoped<CategoryRepository>();
-    services.AddScoped<ManufacturerRepository>();
-    services.AddScoped<ProductPriceRepository>();
-    services.AddScoped<CurrencyRepository>();
+    services.AddScoped<IProductRepository, ProductRepository>();
+    services.AddScoped<ICategoryRepository, CategoryRepository>();
+    services.AddScoped<IManufacturerRepository, ManufacturerRepository>();
+    services.AddScoped<IProductPriceRepository, ProductPriceRepository>();
+    services.AddScoped<ICurrencyRepository, CurrencyRepository>();
 
-    services.AddScoped<OrderService>();
-    services.AddScoped<ProductService>();
+    services.AddScoped<IOrderService, OrderService>();
+    services.AddScoped<IProductService, ProductService>();
 
-    services.AddSingleton<MenuService>();
+    services.AddScoped<MenuService>();
 
 }).Build();
 

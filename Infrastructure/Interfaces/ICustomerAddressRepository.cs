@@ -3,9 +3,7 @@ using System.Linq.Expressions;
 
 namespace Infrastructure.Interfaces
 {
-    public interface ICustomerAddressRepository
+    public interface ICustomerAddressRepository : IBaseRepository<CustomerAddressEntity>
     {
-        Task<IEnumerable<CustomerAddressEntity>> GetAllAsync();
-        Task<CustomerAddressEntity> GetOneAsync(Expression<Func<CustomerAddressEntity, bool>> predicate);
     }
 }

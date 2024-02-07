@@ -7,13 +7,13 @@ using System.Linq.Expressions;
 
 namespace Infrastructure.Services;
 
-public class ProductService(CategoryRepository categoryRepository, CurrencyRepository currencyRepository, ManufacturerRepository manufacturerRepository, ProductRepository productRepository, ProductPriceRepository productPriceRepository)
+public class ProductService(ICategoryRepository categoryRepository, ICurrencyRepository currencyRepository, IManufacturerRepository manufacturerRepository, IProductRepository productRepository, IProductPriceRepository productPriceRepository) : IProductService
 {
-    private readonly CategoryRepository _categoryRepository = categoryRepository;
-    private readonly CurrencyRepository _currencyRepository = currencyRepository;
-    private readonly ManufacturerRepository _manufacturerRepository = manufacturerRepository;
-    private readonly ProductRepository _productRepository = productRepository;
-    private readonly ProductPriceRepository _productPriceRepository = productPriceRepository;
+    private readonly ICategoryRepository _categoryRepository = categoryRepository;
+    private readonly ICurrencyRepository _currencyRepository = currencyRepository;
+    private readonly IManufacturerRepository _manufacturerRepository = manufacturerRepository;
+    private readonly IProductRepository _productRepository = productRepository;
+    private readonly IProductPriceRepository _productPriceRepository = productPriceRepository;
 
     public async Task<bool> CreateProductAsync(ProductDto product)
     {
