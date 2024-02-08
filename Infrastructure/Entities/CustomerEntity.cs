@@ -9,12 +9,12 @@ public class CustomerEntity
     [Key]
     public int Id { get; set; }
 
-    [Required]     // Required betyder att jag måste fylla i fältet.
-    [Column(TypeName = "nvarchar(100)")] // talar om vilken datatyp och längd
+    [Required] 
+    [Column(TypeName = "nvarchar(100)")]
     public string Email { get; set; } = null!;
 
     public virtual CustomerInfoEntity CustomerInfo { get; set; } = null!;
-    public virtual ICollection<OrderEntity> Orders { get; set; } = new HashSet<OrderEntity>(); // en till många relation
+    public virtual ICollection<OrderEntity> Orders { get; set; } = new HashSet<OrderEntity>();
     public virtual ICollection<CustomerAddressEntity> CustomerAddress { get; set; } = new List<CustomerAddressEntity>();
 
     public static implicit operator CustomerEntity(CustomerDto customer)

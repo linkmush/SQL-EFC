@@ -5,11 +5,11 @@ namespace Infrastructure.Entities;
 
 public class OrderEntity
 {
-    [Key]     // talar om att det är en unik nyckel
+    [Key]   
     public int Id { get; set; }
 
     [Required]
-    [ForeignKey(nameof(Customer))]     // implementerar Foreign Key
+    [ForeignKey(nameof(Customer))]   
     public int? CustomerId { get; set; }
     public virtual CustomerEntity Customer { get; set; } = null!;
 }

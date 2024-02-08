@@ -6,7 +6,7 @@ using Infrastructure.Repositories;
 using Infrastructure.Services;
 using Microsoft.EntityFrameworkCore;
 
-namespace Infrastructure.Tests.Services;     // Måste lägga till GetAll 
+namespace Infrastructure.Tests.Services; 
   
 public class ProductService_Test
 {
@@ -162,7 +162,7 @@ public class ProductService_Test
     }
 
     [Fact]
-    public async Task GetProductsAsync_Should_GetAll_And_ReturnIEnumerableOfTypeProductDto()
+    public async Task GetAllAsync_Should_GetAll_And_ReturnProductDto()
     {
         // Arrange
         IProductRepository productRepository = new ProductRepository(_context);
