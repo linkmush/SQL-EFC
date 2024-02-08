@@ -4,7 +4,7 @@ using Infrastructure.Interfaces;
 using Infrastructure.Repositories;
 using Microsoft.EntityFrameworkCore;
 
-namespace Infrastructure.Tests.Repositories;                 // Måste lägga till test på update här
+namespace Infrastructure.Tests.Repositories;
 
 public class CurrencyRepository_Test
 {
@@ -92,6 +92,28 @@ public class CurrencyRepository_Test
         // ASSERT
         Assert.NotNull(result);
         Assert.Equal(currency.Code, result.Code);
+    }
+
+    [Fact]
+    public async Task UpdateAsync_ShouldUpdate_ExistingCurrency_ToList()
+    {
+        // Arrange
+        ICurrencyRepository currencyRepository = new CurrencyRepository(_context);
+        var currency = new Currency
+        {
+            Code = "SEK",
+            Currency1 = "Svensk Krona"
+        };
+        await currencyRepository.CreateAsync(currency);
+
+        // Act
+        currency.Currency1 = "US Dollar";
+        var result = await currencyRepository.UpdateAsync(x => x.Code == currency.Code, currency);
+
+        // Assert
+        Assert.NotNull(result);
+        Assert.Equal(currency.Code, result.Code);
+        Assert.Equal("US Dollar", result.Currency1);
     }
 
     [Fact]

@@ -4,7 +4,7 @@ using Infrastructure.Interfaces;
 using Infrastructure.Repositories;
 using Microsoft.EntityFrameworkCore;
 
-namespace Infrastructure.Tests.Repositories;     // Have to add delete test here. 
+namespace Infrastructure.Tests.Repositories;
 
 public class CategoryRepository_Test
 {
@@ -133,6 +133,24 @@ public class CategoryRepository_Test
         Assert.NotNull(result);
         Assert.Equal(category.Id, result.Id);
         Assert.Equal("NewCategoryname", result.Categoryname);
+    }
+
+    [Fact]
+    public async Task DeleteAsync_Should_DeleteOneCategory_FromList()
+    {
+        // Arrange
+        ICategoryRepository categoryRepository = new CategoryRepository(_context);
+        var category = new Category
+        {
+            Categoryname = "Categoryname"
+        };
+        await categoryRepository.CreateAsync(category);
+
+        // Act
+        var result = await categoryRepository.DeleteAsync(x => x.Id == category.Id);
+
+        // Assert
+        Assert.True(result);
     }
 
     [Fact]

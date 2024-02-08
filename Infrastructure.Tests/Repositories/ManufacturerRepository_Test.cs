@@ -4,7 +4,7 @@ using Infrastructure.Interfaces;
 using Infrastructure.Repositories;
 using Microsoft.EntityFrameworkCore;
 
-namespace Infrastructure.Tests.Repositories;   // måste lägga till delete här
+namespace Infrastructure.Tests.Repositories;
 
 public class ManufacturerRepository_Test
 {
@@ -132,6 +132,24 @@ public class ManufacturerRepository_Test
         Assert.NotNull(result);
         Assert.Equal(manufacturer.Id, result.Id);
         Assert.Equal("NewManufacture", result.Manufacture);
+    }
+
+    [Fact]
+    public async Task DeleteAsync_Should_DeleteOneManufacturer_FromList()
+    {
+        // Arrange
+        IManufacturerRepository manufactureRepository = new ManufacturerRepository(_context);
+        var manufacture = new Manufacturer
+        {
+            Manufacture = "Manufacture"
+        };
+        await manufactureRepository.CreateAsync(manufacture);
+
+        // Act
+        var result = await manufactureRepository.DeleteAsync(x => x.Id == manufacture.Id);
+
+        // Assert
+        Assert.True(result);
     }
 
     [Fact]
